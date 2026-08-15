@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Previsão do Tempo</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+
+<body>
+
+    <main class="container">
+
+        <h1>Previsão do Tempo</h1>
+
+        <form id="weather-form">
+
+            <input
+                type="text"
+                id="city"
+                placeholder="Digite uma cidade"
+                required
+            >
+
+            <button type="submit">
+                Buscar
+            </button>
+
+        </form>
+
+        <section id="result"></section>
+
+    </main>
+
+    <script src="assets/js/api.js"></script>
+
+</body>
+</html>
