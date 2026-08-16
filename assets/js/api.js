@@ -20,7 +20,7 @@ async function getWeather(city) {
     const location = locationData.results[0];
 
     const weatherResponse = await fetch(
-        `https://api.open-meteo.com/v1/forecast?latitude=${location.latitude}&longitude=${location.longitude}&current=temperature_2m,weather_code,is_day&timezone=auto`
+        `https://api.open-meteo.com/v1/forecast?latitude=${location.latitude}&longitude=${location.longitude}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,precipitation_probability,weather_code,is_day&timezone=auto`
     );
 
     if (!weatherResponse.ok) {
@@ -41,6 +41,9 @@ async function getWeather(city) {
     return {
         city: location.name,
         temperature: weatherData.current.temperature_2m,
+        humidity: weatherData.current.relative_humidity_2m ?? 0,
+        windSpeed: weatherData.current.wind_speed_10m ?? 0,
+        precipitation: weatherData.current.precipitation_probability ?? 0,
         weatherCode: weatherData.current.weather_code,
         isDay: weatherData.current.is_day,
         time: weatherData.current.time
@@ -110,14 +113,34 @@ function displayWeather(weather) {
 
     result.innerHTML = `
         <h2>${weather.city}</h2>
+        
         <p class="temperature">${weather.temperature} °C</p>
+        
         <p class="description">${description}</p>
-        <p class="date">${formattedDate}</p>
-        <p class="time">${formattedTime}</p>
+
+        <div class="weather-details">
+            <div>
+                <i class="fa-solid fa-droplet"></i>
+                <span>Umidade</span>
+                <strong>${weather.humidity ?? 0}%</strong>
+            </div>
+            <div>
+                <i class="fa-solid fa-wind"></i>
+                <span>Vento</span>
+                <strong>${weather.windSpeed ?? 0} km/h</strong>
+            </div>
+            <div>
+                <i class="fa-solid fa-cloud-rain"></i>
+                <span>Chuva</span>
+                <strong>${weather.precipitation ?? 0}%</strong>
+            </div>
+        </div>
+
+        <p class="date"><i class="fa-regular fa-calendar-days"></i> ${formattedDate}</p>
+        <p class="time"><i class="fa-regular fa-clock"></i> ${formattedTime}</p>
     `;
 }
 
-// Manipulação do DOM (executa apenas no browser quando o elemento existir)
 if (typeof document !== "undefined") {
     const form = document.querySelector("#weather-form");
     const cityInput = document.querySelector("#city");
@@ -140,7 +163,6 @@ if (typeof document !== "undefined") {
     }
 }
 
-// Exportação CommonJS para testes no Jest
 if (typeof module !== "undefined" && module.exports) {
     module.exports = {
         getWeather,
