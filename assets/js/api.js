@@ -1,3 +1,9 @@
+function sanitizeHTML(str) {
+    const temp = document.createElement("div");
+    temp.textContent = str;
+    return temp.innerHTML;
+}
+
 async function getWeather(city) {
     if (!city || city.trim() === "") {
         throw new Error("Digite uma cidade.");
@@ -111,8 +117,11 @@ function displayWeather(weather) {
         minute: "2-digit"
     });
 
+    // Sanitização contra injeção de HTML/XSS no nome da cidade
+    const safeCity = sanitizeHTML(weather.city);
+
     result.innerHTML = `
-        <h2>${weather.city}</h2>
+        <h2>${safeCity}</h2>
         
         <p class="temperature">${weather.temperature} °C</p>
         
@@ -157,7 +166,7 @@ if (typeof document !== "undefined") {
                 displayWeather(weather);
             } catch (error) {
                 console.error(error);
-                result.innerHTML = `<p>${error.message}</p>`;
+                result.innerHTML = `<p>${sanitizeHTML(error.message)}</p>`;
             }
         });
     }
