@@ -4,15 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Previsão do Tempo</title>
-    
+
     <!-- Google Fonts: Poppins -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
+
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <!-- Estilos da aplicação -->
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
@@ -41,6 +41,18 @@
                 <p>Digite o nome de uma cidade para consultar o clima em tempo real.</p>
             </div>
         </section>
+
+        <!-- Seção de Alertas de Privacidade e Licenciamento -->
+        <footer class="app-footer">
+            <div class="info-badge">
+                <i class="fa-solid fa-shield-halved"></i>
+                <span><strong>Privacidade:</strong> Não armazenamos consultas nem dados pessoais. As pesquisas são enviadas diretamente à API pública Open-Meteo.</span>
+            </div>
+            <div class="info-badge">
+                <i class="fa-solid fa-scale-balanced"></i>
+                <span><strong>Licença:</strong> Dados de clima por <a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer">Open-Meteo</a> (CC BY 4.0). Código sob licença MIT.</span>
+            </div>
+        </footer>
     </main>
 
     <script src="assets/js/api.js"></script>

@@ -1,60 +1,117 @@
-# 🌤️ Projeto Clima (`projeto_clima`)
 
-Aplicação em JavaScript desenvolvida para consultar e exibir dados meteorológicos em tempo real de qualquer cidade, utilizando integrações com API externa de clima, testes automatizados e boas práticas de desenvolvimento assistido por IA.
-
+Readme · MD
+# 🌤️ Aplicação de Previsão do Tempo
+ 
+Aplicação web responsiva e moderna desenvolvida em JavaScript puro (Vanilla JS), HTML5 e CSS3, que consome a API pública **Open-Meteo** para apresentar previsões meteorológicas em tempo real de qualquer cidade do mundo.
+ 
 ---
-
-## 📌 Índice
-- [Visão Geral](#-visão-geral)
-- [Funcionalidades](#-funcionalidades)
-- [Tecnologias Utilizadas](#-tecnologias-utilizadas)
-- [Pré-requisitos](#-pré-requisitos)
-- [Instalação](#-instalação)
-- [Como Usar](#-como-usar)
-- [Executando os Testes](#-executando-os-testes)
-- [Documentação do Código (JSDoc)](#-documentação-do-código-jsdoc)
-- [Estrutura do Projeto](#-estrutura-do-projeto)
-- [Licença](#-licença)
-
+ 
+## 🚀 Tecnologias Utilizadas
+ 
+- **Frontend:** HTML5, CSS3 (Glassmorphism & Responsividade), JavaScript (ES6+)
+- **APIs Externas:** 
+  - [Open-Meteo Geocoding API](https://open-meteo.com/en/docs/geocoding-api)
+  - [Open-Meteo Weather Forecast API](https://open-meteo.com/en/docs)
+- **Fontes e Ícones:** Google Fonts (Poppins), Font Awesome 6
+- **Testes:** Jest & Babel
 ---
-
-## 🚀 Visão Geral
-
-O **Projeto Clima** permite consultar a temperatura atual, umidade, condições do tempo e outras informações meteorológicas cruciais de cidades ao redor do mundo. O projeto foi refatorado e otimizado com auxílio de IA para garantir alta cobertura de testes, tratamento robusto de erros e facilidade de manutenção.
-
----
-
-## ✨ Funcionalidades
-
-- 🔍 **Busca por Cidade**: Consulta a previsão meteorológica atual informando apenas o nome da cidade.
-- 🌐 **Suporte ao Português**: Resultados formatados nativamente em `pt_br` e unidades em métrico (°C).
-- ⚠️ **Tratamento de Erros Eficiente**: Mensagens claras para cenários de cidade não encontrada (404), chave de API inválida (401) e falhas de rede.
-- 🧪 **Suíte de Testes Automatizados**: Testes unitários com Jest para validar requisições, entradas inválidas e exceções.
-- 📖 **Documentação Padronizada**: Código-fonte totalmente documentado utilizando o padrão JSDoc.
-
----
-
-## 🛠️ Tecnologias Utilizadas
-
-- **Linguagem**: JavaScript (Node.js / ES6+)
-- **Testes**: [Jest](https://jestjs.io/)
-- **Documentação**: [JSDoc](https://jsdoc.app/)
-- **Controle de Versão**: Git & GitHub
-
----
-
-## 📋 Pré-requisitos
-
-Antes de iniciar, certifique-se de ter instalado em sua máquina:
-- [Node.js](https://nodejs.org/) (Versão 16.x ou superior)
-- [npm](https://www.npmjs.com/) (Gerenciador de pacotes do Node)
-- Uma chave de API válida da [OpenWeatherMap](https://openweathermap.org/) (ou do provedor configurado).
-
----
-
-## 🔧 Instalação
-
-1. **Clone o repositório:**
-   ```bash
-   git clone [https://github.com/seu-usuario/projeto_clima.git](https://github.com/seu-usuario/projeto_clima.git)
+ 
+## 🛠️ Instalação e Execução
+ 
+### Pré-requisitos
+ 
+- **Node.js** (versão 14 ou superior)
+- **npm** (gerenciador de pacotes)
+### Passos
+ 
+1. **Clonar o repositório:**
+```bash
+   git clone https://github.com/SEU_USUARIO/projeto_clima.git
    cd projeto_clima
+```
+ 
+2. **Instalar as dependências de desenvolvimento:**
+```bash
+   npm install
+```
+ 
+3. **Executar a aplicação:**
+   Abra o arquivo `index.html` diretamente em um navegador web de sua preferência ou utilize a extensão **Live Server** no VS Code.
+4. **Executar os testes:**
+```bash
+   npm test
+```
+ 
+---
+ 
+## 💻 Exemplo de Uso
+ 
+1. Abra a aplicação no navegador.
+2. Digite o nome de uma cidade no campo de busca (ex: `Resende` ou `Paris`).
+3. Clique em **Buscar** ou pressione `Enter`.
+4. A tela exibirá:
+   - Temperatura atual
+   - Descrição do clima
+   - Umidade
+   - Velocidade do vento
+   - Probabilidade de chuva
+   - Horário local da medição
+5. O tema da interface alterna automaticamente entre os modos **Dia** e **Noite** com base no horário solar da localidade.
+---
+ 
+## 🔒 Relatório de Auditoria de Segurança e Privacidade
+ 
+### Riscos Identificados & Mitigações
+ 
+**1. Exposição de Chaves de API (API Keys)**
+- **Status:** Baixo Risco
+- **Detalhes:** A API Open-Meteo é gratuita e pública, dispensando o uso de chaves de acesso (`API Key`). Não há credenciais sensíveis expostas no código client-side.
+**2. Vulnerabilidade a XSS (Cross-Site Scripting)**
+- **Mitigação:** Os dados retornados pela busca de cidades e as mensagens de erro passam por sanitização via função `sanitizeHTML` antes de serem renderizados no DOM.
+**3. Privacidade do Usuário**
+- **Política de Coleta:** A aplicação não solicita geolocalização do dispositivo e não utiliza cookies ou armazenamento local (`localStorage`) para rastrear buscas.
+**4. Comunicação Segura**
+- **Mitigação:** Todas as requisições de API utilizam o protocolo criptografado `HTTPS`.
+---
+ 
+## ⚖️ Licenciamento e Conformidade
+ 
+- **Licença do Projeto:** [MIT License](https://opensource.org/licenses/MIT)
+  - Uso livre comercial e educacional com preservação de direitos autorais.
+- **Atribuição de Dados:** Os dados meteorológicos são fornecidos por [Open-Meteo.com](https://open-meteo.com/) sob a licença Creative Commons Attribution 4.0 International (CC BY 4.0).
+- **Atribuição de Ícones e Fontes:** Créditos das bibliotecas de terceiros (Font Awesome e Google Fonts) estão registrados no arquivo `NOTICE.md`.
+---
+ 
+## 📝 Estrutura do Projeto
+ 
+```
+projeto_clima/
+├── index.html
+├── css/
+│   └── styles.css
+├── js/
+│   ├── app.js
+│   ├── api.js
+│   └── utils.js
+├── tests/
+│   └── app.test.js
+├── package.json
+├── README.md
+└── NOTICE.md
+```
+ 
+---
+ 
+## 🤝 Contribuindo
+ 
+Contribuições são bem-vindas! Por favor, abra uma issue para discutir mudanças propostas ou envie um pull request.
+ 
+---
+ 
+## 📧 Contato
+ 
+Para dúvidas ou sugestões, entre em contato através do repositório do projeto.
+ 
+---
+ 
+**Desenvolvido com ❤️ e JavaScript puro**
