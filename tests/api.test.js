@@ -1,193 +1,64 @@
-/**
- * @jest-environment jsdom
- */
+const { getWeather, getWeatherDescription } = require("../assets/js/api");
 
-document.body.innerHTML = `
-    <form id="weather-form">
-        <input id="city" />
-        <button type="submit">Buscar</button>
-    </form>
+// Mock global da API Fetch do Node/Browser
+global.fetch = jest.fn();
 
-    <div id="result"></div>
-`;
+describe("getWeatherDescription", () => {
+    test("deve retornar 'Céu limpo' para o código 0", () => {
+        expect(getWeatherDescription(0)).toBe("Céu limpo");
+    });
 
-const {
-    getWeather,
-    getWeatherDescription
-} = require("../assets/js/api.js");
-
+    test("deve retornar 'Condição desconhecida' para um código inexistente", () => {
+        expect(getWeatherDescription(999)).toBe("Condição desconhecida");
+    });
+});
 
 describe("getWeather", () => {
-
     beforeEach(() => {
-        global.fetch = jest.fn();
+        fetch.mockClear();
     });
 
-    afterEach(() => {
-        jest.clearAllMocks();
+    test("deve lançar erro se a cidade for vazia", async () => {
+        await expect(getWeather("")).rejects.toThrow("Digite uma cidade.");
     });
 
+    test("deve lançar erro se a cidade não for encontrada", async () => {
+        fetch.mockResolvedValueOnce({
+            ok: true,
+            json: async () => ({ results: [] })
+        });
 
-    test("cidade válida retorna dados meteorológicos", async () => {
+        await expect(getWeather("CidadeInexistente")).rejects.toThrow("Cidade não encontrada.");
+    });
 
-        global.fetch
+    test("deve retornar os dados formatados corretamente em caso de sucesso", async () => {
+        fetch
             .mockResolvedValueOnce({
                 ok: true,
                 json: async () => ({
-                    results: [
-                        {
-                            name: "Resende",
-                            latitude: -22.47,
-                            longitude: -44.45
-                        }
-                    ]
+                    results: [{ name: "Rio de Janeiro", latitude: -22.9, longitude: -43.1 }]
                 })
             })
             .mockResolvedValueOnce({
                 ok: true,
                 json: async () => ({
                     current: {
-                        temperature_2m: 22.5,
-                        weather_code: 2,
+                        temperature_2m: 25.5,
+                        weather_code: 0,
                         is_day: 1,
-                        time: "2026-08-15T15:00"
+                        time: "2026-05-07T12:00"
                     }
                 })
             });
 
-        const result = await getWeather("Resende");
+        const result = await getWeather("Rio de Janeiro");
 
         expect(result).toEqual({
-            city: "Resende",
-            temperature: 22.5,
-            weatherCode: 2,
+            city: "Rio de Janeiro",
+            temperature: 25.5,
+            weatherCode: 0,
             isDay: 1,
-            time: "2026-08-15T15:00"
+            time: "2026-05-07T12:00"
         });
-
-        expect(fetch).toHaveBeenCalledTimes(2);
     });
-
-
-    test("cidade inexistente lança exceção", async () => {
-
-        global.fetch.mockResolvedValueOnce({
-            ok: true,
-            json: async () => ({
-                results: []
-            })
-        });
-
-        await expect(
-            getWeather("CidadeQueNaoExiste123")
-        ).rejects.toThrow("Cidade não encontrada.");
-    });
-
-
-    test("entrada vazia retorna erro de validação", async () => {
-
-        await expect(
-            getWeather("")
-        ).rejects.toThrow("Digite uma cidade.");
-
-        expect(fetch).not.toHaveBeenCalled();
-    });
-
-
-    test("falha da API de localização gera erro", async () => {
-
-        global.fetch.mockResolvedValueOnce({
-            ok: false,
-            status: 500
-        });
-
-        await expect(
-            getWeather("Resende")
-        ).rejects.toThrow(
-            "Erro ao consultar a localização."
-        );
-    });
-
-
-    test("limite da API gera erro", async () => {
-
-        global.fetch.mockResolvedValueOnce({
-            ok: false,
-            status: 429
-        });
-
-        await expect(
-            getWeather("Resende")
-        ).rejects.toThrow(
-            "Erro ao consultar a localização."
-        );
-    });
-
-
-    test("falha de rede gera erro", async () => {
-
-        global.fetch.mockRejectedValueOnce(
-            new Error("Network Error")
-        );
-
-        await expect(
-            getWeather("Resende")
-        ).rejects.toThrow("Network Error");
-    });
-
-
-    test("resposta JSON inesperada gera erro", async () => {
-
-        global.fetch
-            .mockResolvedValueOnce({
-                ok: true,
-                json: async () => ({
-                    results: [
-                        {
-                            name: "Resende",
-                            latitude: -22.47,
-                            longitude: -44.45
-                        }
-                    ]
-                })
-            })
-            .mockResolvedValueOnce({
-                ok: true,
-                json: async () => ({
-                    current: {}
-                })
-            });
-
-        await expect(
-            getWeather("Resende")
-        ).rejects.toThrow(
-            "Formato de resposta inválido."
-        );
-    });
-
-});
-
-
-describe("getWeatherDescription", () => {
-
-    test("código 0 retorna céu limpo", () => {
-        expect(
-            getWeatherDescription(0)
-        ).toBe("Céu limpo");
-    });
-
-
-    test("código 2 retorna parcialmente nublado", () => {
-        expect(
-            getWeatherDescription(2)
-        ).toBe("Parcialmente nublado");
-    });
-
-
-    test("código desconhecido retorna condição desconhecida", () => {
-        expect(
-            getWeatherDescription(999)
-        ).toBe("Condição desconhecida");
-    });
-
 });

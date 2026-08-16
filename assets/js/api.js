@@ -47,45 +47,33 @@ async function getWeather(city) {
     };
 }
 
-
 function getWeatherDescription(code) {
-
     const weatherCodes = {
         0: "Céu limpo",
         1: "Principalmente limpo",
         2: "Parcialmente nublado",
         3: "Nublado",
-
         45: "Neblina",
         48: "Neblina com geada",
-
         51: "Chuvisco leve",
         53: "Chuvisco moderado",
         55: "Chuvisco intenso",
-
         56: "Chuvisco congelante leve",
         57: "Chuvisco congelante intenso",
-
         61: "Chuva leve",
         63: "Chuva moderada",
         65: "Chuva forte",
-
         66: "Chuva congelante leve",
         67: "Chuva congelante forte",
-
         71: "Neve leve",
         73: "Neve moderada",
         75: "Neve forte",
-
         77: "Granizo",
-
         80: "Pancadas de chuva leves",
         81: "Pancadas de chuva moderadas",
         82: "Pancadas de chuva fortes",
-
         85: "Pancadas de neve leves",
         86: "Pancadas de neve fortes",
-
         95: "Trovoada",
         96: "Trovoada com granizo leve",
         99: "Trovoada com granizo forte"
@@ -94,10 +82,9 @@ function getWeatherDescription(code) {
     return weatherCodes[code] || "Condição desconhecida";
 }
 
-
 function displayWeather(weather) {
-
     const result = document.querySelector("#result");
+    if (!result) return;
 
     const description = getWeatherDescription(weather.weatherCode);
 
@@ -123,54 +110,38 @@ function displayWeather(weather) {
 
     result.innerHTML = `
         <h2>${weather.city}</h2>
-
-        <p class="temperature">
-            ${weather.temperature} °C
-        </p>
-
-        <p class="description">
-            ${description}
-        </p>
-
-        <p class="date">
-            ${formattedDate}
-        </p>
-
-        <p class="time">
-            ${formattedTime}
-        </p>
+        <p class="temperature">${weather.temperature} °C</p>
+        <p class="description">${description}</p>
+        <p class="date">${formattedDate}</p>
+        <p class="time">${formattedTime}</p>
     `;
 }
 
+// Manipulação do DOM (executa apenas no browser quando o elemento existir)
+if (typeof document !== "undefined") {
+    const form = document.querySelector("#weather-form");
+    const cityInput = document.querySelector("#city");
+    const result = document.querySelector("#result");
 
-const form = document.querySelector("#weather-form");
-const cityInput = document.querySelector("#city");
-const result = document.querySelector("#result");
+    if (form && cityInput && result) {
+        form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            const city = cityInput.value.trim();
 
-form.addEventListener("submit", async (event) => {
-    event.preventDefault();
-
-    const city = cityInput.value.trim();
-
-    try {
-        result.innerHTML = "<p>Buscando informações...</p>";
-
-        const weather = await getWeather(city);
-
-        displayWeather(weather);
-
-    } catch (error) {
-
-        console.error(error);
-
-        result.innerHTML = `
-            <p>${error.message}</p>
-        `;
+            try {
+                result.innerHTML = "<p>Buscando informações...</p>";
+                const weather = await getWeather(city);
+                displayWeather(weather);
+            } catch (error) {
+                console.error(error);
+                result.innerHTML = `<p>${error.message}</p>`;
+            }
+        });
     }
-});
+}
 
-
-if (typeof module !== "undefined") {
+// Exportação CommonJS para testes no Jest
+if (typeof module !== "undefined" && module.exports) {
     module.exports = {
         getWeather,
         getWeatherDescription
