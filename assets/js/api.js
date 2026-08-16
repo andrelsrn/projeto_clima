@@ -1,113 +1,51 @@
-const form = document.querySelector("#weather-form");
-const cityInput = document.querySelector("#city");
-const result = document.querySelector("#result");
-
-form.addEventListener("submit", async (event) => {
-    event.preventDefault();
-
-    const city = cityInput.value.trim();
-
-    if (!city) {
-        result.innerHTML = "<p>Digite o nome de uma cidade.</p>";
-        return;
+async function getWeather(city) {
+    if (!city || city.trim() === "") {
+        throw new Error("Digite uma cidade.");
     }
 
-    try {
-        result.innerHTML = "<p>Buscando informações...</p>";
+    const locationResponse = await fetch(
+        `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=pt&format=json`
+    );
 
-        // Busca a localização da cidade
-        const locationResponse = await fetch(
-            `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=pt&format=json`
-        );
-
-        if (!locationResponse.ok) {
-            throw new Error("Não foi possível consultar a localização.");
-        }
-
-        const locationData = await locationResponse.json();
-
-        // Verifica se a cidade foi encontrada
-        if (!locationData.results || locationData.results.length === 0) {
-            result.innerHTML = "<p>Cidade não encontrada.</p>";
-            return;
-        }
-
-        const location = locationData.results[0];
-
-        // Busca os dados meteorológicos
-        const weatherResponse = await fetch(
-            `https://api.open-meteo.com/v1/forecast?latitude=${location.latitude}&longitude=${location.longitude}&current=temperature_2m,weather_code,is_day&timezone=auto`
-        );
-
-        if (!weatherResponse.ok) {
-            throw new Error("Não foi possível consultar o clima.");
-        }
-
-        const weatherData = await weatherResponse.json();
-
-        const currentWeather = weatherData.current;
-
-        // Converte o código meteorológico em uma descrição
-        const description = getWeatherDescription(
-            currentWeather.weather_code
-        );
-
-        // Verifica se é dia ou noite
-        if (currentWeather.is_day === 1) {
-            document.body.classList.remove("night");
-        } else {
-            document.body.classList.add("night");
-        }
-
-        // Data e hora da consulta
-        const date = new Date(currentWeather.time);
-
-        const formattedDate = date.toLocaleDateString("pt-BR", {
-            weekday: "long",
-            day: "numeric",
-            month: "long",
-            year: "numeric"
-        });
-
-        const formattedTime = date.toLocaleTimeString("pt-BR", {
-            hour: "2-digit",
-            minute: "2-digit"
-        });
-
-        // Exibe os dados
-        result.innerHTML = `
-            <h2>${location.name}</h2>
-
-            <p class="temperature">
-                ${currentWeather.temperature_2m} °C
-            </p>
-
-            <p class="description">
-                ${description}
-            </p>
-
-            <p class="date">
-                ${formattedDate}
-            </p>
-
-            <p class="time">
-                ${formattedTime}
-            </p>
-        `;
-
-    } catch (error) {
-        console.error(error);
-
-        result.innerHTML = `
-            <p>
-                Não foi possível obter os dados do clima.
-            </p>
-            <p>
-                Verifique sua conexão e tente novamente.
-            </p>
-        `;
+    if (!locationResponse.ok) {
+        throw new Error("Erro ao consultar a localização.");
     }
-});
+
+    const locationData = await locationResponse.json();
+
+    if (!locationData.results || locationData.results.length === 0) {
+        throw new Error("Cidade não encontrada.");
+    }
+
+    const location = locationData.results[0];
+
+    const weatherResponse = await fetch(
+        `https://api.open-meteo.com/v1/forecast?latitude=${location.latitude}&longitude=${location.longitude}&current=temperature_2m,weather_code,is_day&timezone=auto`
+    );
+
+    if (!weatherResponse.ok) {
+        throw new Error("Erro ao consultar o clima.");
+    }
+
+    const weatherData = await weatherResponse.json();
+
+    if (
+        !weatherData.current ||
+        weatherData.current.temperature_2m === undefined ||
+        weatherData.current.weather_code === undefined ||
+        weatherData.current.is_day === undefined
+    ) {
+        throw new Error("Formato de resposta inválido.");
+    }
+
+    return {
+        city: location.name,
+        temperature: weatherData.current.temperature_2m,
+        weatherCode: weatherData.current.weather_code,
+        isDay: weatherData.current.is_day,
+        time: weatherData.current.time
+    };
+}
 
 
 function getWeatherDescription(code) {
@@ -154,4 +92,87 @@ function getWeatherDescription(code) {
     };
 
     return weatherCodes[code] || "Condição desconhecida";
+}
+
+
+function displayWeather(weather) {
+
+    const result = document.querySelector("#result");
+
+    const description = getWeatherDescription(weather.weatherCode);
+
+    if (weather.isDay === 1) {
+        document.body.classList.remove("night");
+    } else {
+        document.body.classList.add("night");
+    }
+
+    const date = new Date(weather.time);
+
+    const formattedDate = date.toLocaleDateString("pt-BR", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric"
+    });
+
+    const formattedTime = date.toLocaleTimeString("pt-BR", {
+        hour: "2-digit",
+        minute: "2-digit"
+    });
+
+    result.innerHTML = `
+        <h2>${weather.city}</h2>
+
+        <p class="temperature">
+            ${weather.temperature} °C
+        </p>
+
+        <p class="description">
+            ${description}
+        </p>
+
+        <p class="date">
+            ${formattedDate}
+        </p>
+
+        <p class="time">
+            ${formattedTime}
+        </p>
+    `;
+}
+
+
+const form = document.querySelector("#weather-form");
+const cityInput = document.querySelector("#city");
+const result = document.querySelector("#result");
+
+form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const city = cityInput.value.trim();
+
+    try {
+        result.innerHTML = "<p>Buscando informações...</p>";
+
+        const weather = await getWeather(city);
+
+        displayWeather(weather);
+
+    } catch (error) {
+
+        console.error(error);
+
+        result.innerHTML = `
+            <p>${error.message}</p>
+        `;
+    }
+});
+
+
+if (typeof module !== "undefined") {
+    module.exports = {
+        getWeather,
+        getWeatherDescription
+    };
 }
